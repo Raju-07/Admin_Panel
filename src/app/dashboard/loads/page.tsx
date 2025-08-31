@@ -247,7 +247,7 @@ export default function LoadsPage() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        {load.driver_id && (
+                        {load.driver_id && !["Pending","Delivered","Cancelled"].includes(load.status) && (
                           <Link href={`/maps?driver=${load.driver_id}`}>
                             <Button size="sm" variant="outline">
                               <MapPin className="text-green-500" size={16} />

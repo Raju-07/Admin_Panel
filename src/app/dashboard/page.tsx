@@ -156,7 +156,7 @@ export default function DashboardHome() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        {load.driver_id && !["Delivered","Cancelled"].includes(load.status) && (
+                        {load.driver_id && !["Pending","Delivered","Cancelled"].includes(load.status) && (
                         <Link href={`/maps?driver=${load.driver_id}`}>
                           <Button size="sm" variant="secondary">
                             <MapPin className="text-green-500" size={16} />
