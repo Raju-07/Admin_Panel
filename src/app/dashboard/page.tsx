@@ -11,10 +11,10 @@ import { TooltipProvider,Tooltip,TooltipTrigger,TooltipContent } from "@/compone
 import LoadDetailsModal from "@/components/dashboard/LoadDetailsModal";
 import UpdateDriverDialog from "@/components/dashboard/UpdateDriverDialog";
 import { Select,SelectTrigger,SelectContent,SelectItem,SelectValue } from "@/components/ui/select";
-import { AlertDialog, AlertDialogAction,AlertDialogCancel,AlertDialogContent,AlertDialogFooter,AlertDialogHeader,AlertDialogTitle,AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction,AlertDialogCancel,AlertDialogContent,AlertDialogFooter,AlertDialogHeader,AlertDialogTitle} from "@/components/ui/alert-dialog";
 import { AlertDialogDescription } from "@radix-ui/react-alert-dialog";
 import Loading from "@/components/ui/Loading";
-import { text } from "node:stream/consumers";
+import { Load} from "@/types";
 
 type Metrics = {
   ongoing: number
@@ -28,11 +28,11 @@ export default function DashboardHome() {
   const [showDetails, setShowsDetails] = useState(false)
   const [showUpdateDriver, setShowUpdateDriver] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<{open: boolean, loadId?:string, newStatus?: string}>({open: false})
-  const [selectedLoad, setSelectedLoad] = useState<any>(null)
+  const [selectedLoad, setSelectedLoad] = useState<Load | null>(null)
   const [showLoad, setShowLoad] = useState(false);
-  const [pending, setPending] = useState<any[]>([])
-  const [assigned, setAssigned] = useState<any[]>([])
-  const [inTransit, setInTransit] = useState<any[]>([])
+  const [pending, setPending] = useState<Load[]>([])
+  const [assigned, setAssigned] = useState<Load[]>([])
+  const [inTransit, setInTransit] = useState<Load[]>([])
   const [loading, setLoading] = useState(true)
   const [metrics,setMetrics] = useState<Metrics>({
     ongoing: 0,
@@ -44,7 +44,7 @@ export default function DashboardHome() {
   //Fetching all loads
   const fetchLoads = async() => {
     setLoading(true)
-    const {data, error} = await supabase.from("loads").select("id,load_number,pickup_location,delivery_location,status,drivers(id,full_name,phone,email),driver_id,commodity,pallets,weights").order("created_at",{ascending:false})
+    const {data, error} = await supabase.from("loads").select("id,load_number,pickup_location,delivery_location,pickup_datetime,delivery_datetime,status,drivers(id,full_name,phone,email),driver_id,commodity,pallets,weights").order("created_at",{ascending:false})
 
     if (error){
       toast.error("Error fetching loads")
@@ -52,9 +52,14 @@ export default function DashboardHome() {
       return
     }
     if (data) {
-      setPending(data.filter(l => l.status === "Pending"))
-      setAssigned(data.filter(l => l.status === "Assigned"))
-      setInTransit(data.filter(l => l.status === "In Transit"))
+      // Map drivers array to a single DriverRef (or null)
+      const mappedData = data.map(l => ({
+        ...l,
+        drivers: Array.isArray(l.drivers) ? (l.drivers[0] || null) : l.drivers
+      }));
+      setPending(mappedData.filter(l => l.status === "Pending"))
+      setAssigned(mappedData.filter(l => l.status === "Assigned"))
+      setInTransit(mappedData.filter(l => l.status === "In Transit"))
     }
     setLoading(false)
   }
@@ -93,16 +98,17 @@ export default function DashboardHome() {
 
       //Refetching Everythig cleanly
       location.reload()
-    } catch(err){
-      toast.error("Failed to update load status")
+    } catch(_err){
+      console.log("failed to update the load status",_err)
+      toast.error('Failed to update load status' )
     }
   }
 
-  const renderTable = (title: string, loads:any[]) => (
+  const renderTable = (title: string, loads: Load[]) => (
     <div className="mb-10">
       <h2 className="text-xl font-bold mb-4">{title}</h2>
       {loads.length===0?(
-        <p className="text-gray-500">No Loads found in "{title.toLowerCase()}".</p>
+        <p className="text-gray-500">No Loads found in &quot;{title.toLowerCase()}&quot;.</p>
       ):(
         <table className="min-w-full bg-white rounded shadow">
           <thead>
@@ -124,7 +130,7 @@ export default function DashboardHome() {
                 <td className="p-2">{load.delivery_location}</td>
                 <td className="p-2">{load.drivers?.full_name || "Unassigned"}</td>
                 <td className="p-2">{load.status} </td>
-                <td className="p-2">{["Assigned","In Transit"].includes(load.status)&&(
+                <td className="p-2">{["Assigned","In Transit"].includes(load.status ?? "")&&(
                     <Select onValueChange={(value)=>{
                       if (value === "Delivered" || value === "Cancelled"){
                         setConfirmDialog({open:true,loadId:load.id,newStatus: value})
@@ -156,7 +162,7 @@ export default function DashboardHome() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        {load.driver_id && !["Pending","Delivered","Cancelled"].includes(load.status) && (
+                        {load.driver_id && !["Pending","Delivered","Cancelled"].includes(load.status ?? "") && (
                         <Link href={`/maps?driver=${load.driver_id}`}>
                           <Button size="sm" variant="secondary">
                             <MapPin className="text-green-500" size={16} />
@@ -173,7 +179,7 @@ export default function DashboardHome() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button size="sm" variant= "outline" onClick={()=>{setSelectedLoad(load),setShowsDetails(true)}}>
+                        <Button size="sm" variant= "outline" onClick={()=>{setSelectedLoad(load);setShowsDetails(true);}}>
                           <Info className="text-blue-500" size={16}/>
                         </Button>
                       </TooltipTrigger>
@@ -186,7 +192,7 @@ export default function DashboardHome() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button size="sm" variant= "outline" onClick={()=>[setSelectedLoad(load),setShowUpdateDriver(true)]} >
+                        <Button size="sm" variant= "outline" onClick={()=>{setSelectedLoad(load);setShowUpdateDriver(true);}} >
                           <UserRound className="text-black-500" size={16}/>
                         </Button>
                       </TooltipTrigger>
@@ -290,14 +296,16 @@ export default function DashboardHome() {
       {showLoad && <CreateLoadModal onClose={()=>setShowLoad(false)} onCreated={()=>{/* refresh UI if needed */}} />}
       {showDetails && (<LoadDetailsModal open={showDetails} onClose={()=> setShowsDetails(false)} load={selectedLoad}/>)}
       {showUpdateDriver && (<UpdateDriverDialog open={showUpdateDriver} onClose={()=> setShowUpdateDriver(false)}
-      loadId={selectedLoad?.id}
+      loadId={selectedLoad?.id ?? ""}
       currentDriver={
-        selectedLoad?.drivers?{
-          id: selectedLoad.driver_id,
-          full_name: selectedLoad.drivers.full_name,
-          phone: selectedLoad.drivers.phone,
-          email: selectedLoad.drivers.email
-        }: null
+        selectedLoad?.drivers && selectedLoad.driver_id
+          ? {
+              id: selectedLoad.driver_id ?? "",
+              full_name: selectedLoad.drivers.full_name ?? "",
+              phone: selectedLoad.drivers.phone ?? "",
+              email: selectedLoad.drivers.email ?? ""
+            }
+          : null
       } onUpdated={()=>{fetchLoads()}}
       
   />

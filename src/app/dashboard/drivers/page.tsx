@@ -10,17 +10,24 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import AddDriverModal from "@/components/dashboard/AddDriverModal";
 import { TooltipProvider,Tooltip,TooltipContent,TooltipTrigger } from "@/components/ui/tooltip";
-import { URL } from "node:url";
+
+type Driver = {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  auth_user_id: string;
+};
 
 
 export default function DriversPage() {
-  const [drivers, setDrivers] = useState<any[]>([]);
+  const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDriver, setShowDriver] = useState(false);
 
     // Modal State
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [currentDriver, setCurrentDriver] = useState<any>(null);
+  const [currentDriver, setCurrentDriver] = useState<Driver |null>(null);
 
   const fetchDrivers = async () => {
     setLoading(true);
@@ -43,7 +50,7 @@ export default function DriversPage() {
     }
   };
 
-  const handleEdit = (driver: any) => {
+  const handleEdit = (driver: Driver) => {
     setCurrentDriver(driver);
     setEditModalOpen(true);
   };
@@ -100,9 +107,9 @@ return (
         <tbody>
           {drivers.map((driver) => (
             <tr key={driver.id} className="border-t hover:bg-gray-50">
-              <td className="p-2">{driver.full_name}</td>
-              <td className="p-2">{driver.phone}</td>
-              <td className="p-2">{driver.email}</td>
+              <td className="p-2 text-sm">{driver.full_name}</td>
+              <td className="p-2 text-sm">{driver.phone}</td>
+              <td className="p-2 text-sm">{driver.email}</td>
               <td className="px-6 py-3 flex gap-2">
               {/* Updating Driver Information */}
                 <TooltipProvider>
@@ -182,7 +189,7 @@ return (
                                 Your account has been created successfully. Please use the following credentials to log in:
 
                                 Email: ${driver.email} 
-                                Password: maxx-traxx-user@1234 
+                                Password: maxxuser@1234 
 
                                 You can change your password after logging in.
                                 We advice you to update you password 
@@ -223,21 +230,21 @@ return (
               className="p-2 border rounded"
               placeholder="Full Name"
               value={currentDriver?.full_name || ""}
-              onChange={(e) => setCurrentDriver({ ...currentDriver, full_name: e.target.value })}
+              onChange={(e) => currentDriver && setCurrentDriver({ ...currentDriver, full_name: e.target.value })}
             />
             Phone Number
             <Input
               className="p-2 border rounded"
               placeholder="Phone Number"
               value={currentDriver?.phone || ""}
-              onChange={(e) => setCurrentDriver({ ...currentDriver, phone: e.target.value })}
+              onChange={(e) => currentDriver && setCurrentDriver({ ...currentDriver, phone: e.target.value })}
             />
             Email
             <Input
               className="p-2 border rounded"
               placeholder="Pallets"
               value={currentDriver?.email || ""}
-              onChange={(e) => setCurrentDriver({ ...currentDriver, email: e.target.value })}
+              onChange={(e) => currentDriver && setCurrentDriver({ ...currentDriver, email: e.target.value })}
             />
           </div>
 

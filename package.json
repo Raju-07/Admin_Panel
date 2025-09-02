@@ -17,7 +17,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@react-google-maps/api": "^2.20.7",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
-    "@supabase/supabase-js": "^2.54.0",
+    "@supabase/supabase-js": "^2.56.1",
     "add": "^2.0.6",
     "calender": "^1.0.3",
     "class-variance-authority": "^0.7.1",

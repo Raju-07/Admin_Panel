@@ -6,27 +6,28 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase/client";
-import { Pencil,MapPin,Trash2, Eye,X,UserRoundMinus, Info } from "lucide-react";
+import { Pencil,MapPin,Trash2,X,UserRoundMinus, Info } from "lucide-react";
 import { Select,SelectTrigger,SelectContent,SelectItem,SelectValue, } from "@/components/ui/select";
 import Link from "next/link";
 import CreateLoadModal from "@/components/dashboard/CreateLoadModal";
 import LoadDetailsModal from "@/components/dashboard/LoadDetailsModal";
 import { TooltipProvider,Tooltip,TooltipTrigger,TooltipContent } from "@/components/ui/tooltip";
+import {Load} from "@/types"
 
 export default function LoadsPage() {
-  const [loads, setLoads] = useState<any[]>([]);
+  const [loads, setLoads] = useState<Load[]>([]);
   const [loading, setLoading] = useState(true);
   const [showLoad, setShowLoad] = useState(false);
   const [showDetails, setShowsDetails] = useState(false);
-  const [selectedLoad, setSelectedLoad] = useState<any>(null)
-  const [filteredLoads, setFilteredLoads] = useState<any[]>([]);
+  const [selectedLoad, setSelectedLoad] = useState<Load | null>(null)
+  const [filteredLoads, setFilteredLoads] = useState<Load[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter ] = useState("");
+  const [statusFilter, setStatusFilter ] = useState("all");
 
 
   // Modal State
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [currentLoad, setCurrentLoad] = useState<any>(null);
+  const [currentLoad, setCurrentLoad] = useState<Partial<Load> | null>(null);
 
   const fetchLoads = async () => {
     setLoading(true);
@@ -57,10 +58,10 @@ export default function LoadsPage() {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (load) =>
-          load.load_number?.toLowerCase().includes(term) ||
-          load.pickup_location?.toLowerCase().includes(term) ||
-          load.delivery_location?.toLowerCase().includes(term) ||
-          load.drivers?.full_name?.toLowerCase().includes(term)
+          String(load.load_number ?? "").toLowerCase().includes(term) ||
+          String(load.pickup_location ?? "").toLowerCase().includes(term) ||
+          String(load.delivery_location ?? "").toLowerCase().includes(term) ||
+          String(load.drivers?.full_name ?? "").toLowerCase().includes(term)
       );
     }
 
@@ -102,7 +103,7 @@ export default function LoadsPage() {
     }
   };
 
-  const handleEdit = (load: any) => {
+  const handleEdit = (load: Load) => {
     setCurrentLoad(load);
     setEditModalOpen(true);
   };
@@ -247,7 +248,7 @@ export default function LoadsPage() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        {load.driver_id && !["Pending","Delivered","Cancelled"].includes(load.status) && (
+                        {load.driver_id && !["Pending","Delivered","Cancelled"].includes(load.status ?? "") && (
                           <Link href={`/maps?driver=${load.driver_id}`}>
                             <Button size="sm" variant="outline">
                               <MapPin className="text-green-500" size={16} />
@@ -262,7 +263,7 @@ export default function LoadsPage() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button size="sm" variant="outline" onClick={()=>{setSelectedLoad(load),setShowsDetails(true)}}>
+                        <Button size="sm" variant="outline" onClick={()=>{setSelectedLoad(load); setShowsDetails(true)}}>
                             <Info className="text-blue-500" size={16} />
                         </Button>
                       </TooltipTrigger>
@@ -304,14 +305,14 @@ export default function LoadsPage() {
               className="p-2 border rounded"
               placeholder="Pallets"
               value={currentLoad?.pallets || ""}
-              onChange={(e) => setCurrentLoad({ ...currentLoad, pallets: e.target.value })}
+              onChange={(e) => setCurrentLoad({ ...currentLoad, pallets: Number(e.target.value) })}
             />
             Weights
             <Input
               className="p-2 border rounded"
               placeholder="Weight"
               value={currentLoad?.weights || ""}
-              onChange={(e) => setCurrentLoad({ ...currentLoad, weights: e.target.value })}
+              onChange={(e) => setCurrentLoad({ ...currentLoad, weights:Number(e.target.value) })}
             /> 
             Pickup Location
             <Input
@@ -333,7 +334,7 @@ export default function LoadsPage() {
             placeholder="Pick-Up DateTime"
             type="datetime-local" 
             className="p-2 border rounded" 
-            value={currentLoad?.pickup_datetime} 
+            value={currentLoad?.pickup_datetime ?? ""} 
             onChange={(e) => setCurrentLoad({ ...currentLoad,pickup_datetime: e.target.value})}
             />
             Delivery DateTime
@@ -342,10 +343,11 @@ export default function LoadsPage() {
             placeholder="Delivery DateTime"
             type="datetime-local" 
             className="p-2 border rounded" 
-            value={currentLoad?.delivery_datetime} 
+            value={currentLoad?.delivery_datetime ?? ""} 
             onChange={e=> setCurrentLoad({...currentLoad,delivery_datetime: e.target.value})}/>
           
           </div>
+
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditModalOpen(false)}>Cancel</Button>

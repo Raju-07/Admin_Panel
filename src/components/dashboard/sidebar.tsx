@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Home, Map, Package, Users,LocateOffIcon, MapPinOff } from "lucide-react"
+import { Home, Map, Package, Users, MapPinOff } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const menuItems = [

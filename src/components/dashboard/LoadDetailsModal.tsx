@@ -1,15 +1,15 @@
 "use client"
 import { Dialog, DialogContent,DialogHeader,DialogDescription,DialogTitle } from "@/components/ui/dialog"
+import { Load } from "@/types"
 
 type LoadDetailsModalProps = {
     open: boolean
     onClose: ()=> void
-    load: any | null
+    load: Load | null
 }
 
 export default function LoadDetailsModal({open,onClose,load}:LoadDetailsModalProps) {
     if (!load) return null
-
     return(
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="max-w-lg">

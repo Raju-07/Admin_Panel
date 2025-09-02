@@ -3,8 +3,9 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { Driver } from "@/types";
 
-export default function AddDriverModal({ onClose, onCreated } : { onClose: ()=>void, onCreated: (data:any)=>void }) {
+export default function AddDriverModal({ onClose, onCreated } : { onClose: ()=>void, onCreated: (data:Driver)=>void }) {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -22,7 +23,7 @@ export default function AddDriverModal({ onClose, onCreated } : { onClose: ()=>v
           phone,
           email,
           // default password
-          password: "maxx-traxx-user@1234"
+          password: "maxxuser@1234"
         })
       });
       const json = await res.json();
@@ -35,9 +36,13 @@ export default function AddDriverModal({ onClose, onCreated } : { onClose: ()=>v
       setFullName(""); setPhone(""); setEmail("");
       onCreated(json);
       onClose();
-    } catch (err:any) {
-      setLoading(false);
-      toast.error(err.message || "Error");
+    } catch (err) {
+      setLoading(false)
+      if (err instanceof Error) {
+        toast.error(err.message)
+      } else {
+        toast.error("Error")
+      }
     }
   };
 

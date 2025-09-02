@@ -1,7 +1,6 @@
 // src/app/api/admin/create-load/route.ts
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { Weight } from "lucide-react";
 
 export async function POST(req: Request) {
   try {
@@ -42,7 +41,10 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ ok: true, load: data });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Unknown error" }, { status: 500 });
+  }  catch (err: unknown) {
+  if (err instanceof Error) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
+  return NextResponse.json({ error: "Unknown error" }, { status: 500 });
+}
 }

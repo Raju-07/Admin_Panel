@@ -3,8 +3,10 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { Load,Driver } from "@/types";
 
-export default function CreateLoadModal({ onClose, onCreated } : { onClose: ()=>void, onCreated: (data:any)=>void }) {
+
+export default function CreateLoadModal({ onClose, onCreated } : { onClose: ()=>void, onCreated: (data:Load)=>void }) {
   const [loadNumber, setLoadNumber] = useState("");
   const [commodity, setCommodity] = useState("");
   const [pallets, setPallets] = useState<number | "">("");
@@ -14,15 +16,13 @@ export default function CreateLoadModal({ onClose, onCreated } : { onClose: ()=>
   const [pickupDatetime, setPickupDatetime] = useState("");
   const [deliveryDatetime, setDeliveryDatetime] = useState("");
   const [driverId, setDriverId] = useState<string | null>(null);
-  const [drivers, setDrivers] = useState<any[]>([]);
+  const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(false);
 
   // fetch drivers to assign (only drivers table)
   useEffect(() => {
     const fetchDrivers = async () => {
-      const res = await fetch("/api/admin/list-drivers"); // we'll create a small route or use client lib later
-      // if you prefer skip API and use client supabase from browser:
-      // use supabase.from('drivers').select('id, full_name, email')
+      const res = await fetch("/api/admin/list-drivers"); 
       if (res.ok) {
         const json = await res.json();
         setDrivers(json.drivers || []);
@@ -62,9 +62,13 @@ export default function CreateLoadModal({ onClose, onCreated } : { onClose: ()=>
       toast.success("Load created");
       onCreated(json);
       onClose();
-    } catch (err:any) {
-      setLoading(false);
-      toast.error(err.message || "Error");
+    } catch (err) {
+      setLoading(false)
+      if (err instanceof Error) {
+        toast.error(err.message)
+      } else {
+        toast.error("Error")
+      }
     }
   };
 
@@ -75,8 +79,8 @@ export default function CreateLoadModal({ onClose, onCreated } : { onClose: ()=>
         <div className="grid grid-cols-2 gap-3">
           <input className="p-2 border rounded" placeholder="Load number" value={loadNumber} onChange={e=>setLoadNumber(e.target.value)} required/>
           <input className="p-2 border rounded" placeholder="Commodity" value={commodity} onChange={e=>setCommodity(e.target.value)} />
-          <input className="p-2 border rounded" placeholder="Pallets" value={pallets as any} onChange={e=>setPallets(e.target.value?Number(e.target.value):"")} />
-          <input className="p-2 border rounded" placeholder="Weights" value={weights as any} onChange={e=>setWeights(e.target.value?Number(e.target.value):"")} />
+          <input className="p-2 border rounded" placeholder="Pallets" value={pallets } onChange={e=>setPallets(e.target.value?Number(e.target.value):"")} />
+          <input className="p-2 border rounded" placeholder="Weights" value={weights } onChange={e=>setWeights(e.target.value?Number(e.target.value):"")} />
           <input className="p-2 border rounded" placeholder="Pickup location" value={pickupLocation} onChange={e=>setPickupLocation(e.target.value)} required/>
           <input type="datetime-local" className="p-2 border rounded" value={pickupDatetime} onChange={e=>setPickupDatetime(e.target.value)} required/>
           <input className="p-2 border rounded" placeholder="Delivery location" value={deliveryLocation} onChange={e=>setDeliveryLocation(e.target.value)} required/>

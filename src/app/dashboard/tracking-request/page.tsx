@@ -12,7 +12,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogCancel,
-  AlertDialogAction,
+  AlertDialogAction
 } from "@/components/ui/alert-dialog"
 import Loading from "@/components/ui/Loading"
 import { MapPinOff } from "lucide-react"
@@ -21,19 +21,11 @@ type Request = {
   id: string
   approved: boolean
   requested_at: string
-  drivers: {
-    id: string
-    full_name: string
-    phone: string
-  } | null
-  loads: {
-    id: string
-    load_number: string
-    pickup_location: string
-    delivery_location: string
-    status: string
-  } | null
+  drivers: { id: string; full_name: string; phone: string } | null
+  loads: { id: string; load_number: string; pickup_location: string; delivery_location: string; status: string } | null
 }
+
+
 
 export default function TrackingRequestsPage() {
   const [requests, setRequests] = useState<Request[]>([])
@@ -47,14 +39,21 @@ export default function TrackingRequestsPage() {
   const fetchRequests = async () => {
     setLoading(true)
     const { data, error } = await supabase
-      .from("tracking_stop_requests")
-      .select("id, approved, requested_at, drivers(id, full_name, phone), loads(id, load_number, pickup_location, delivery_location, status)")
-      .order("requested_at", { ascending: false })
+  .from("tracking_stop_requests")
+  .select(`
+    id,
+    approved,
+    requested_at,
+    drivers:driver_id ( id, full_name, phone ),
+    loads:load_id ( id, load_number, pickup_location, delivery_location, status )
+  `)
+  .order("requested_at", { ascending: false })
 
     if (error) {
       toast.error("Failed to fetch requests")
-    } else {
-      setRequests(data as any)
+    } else if (data) {
+      // data contains nested relation arrays — cast to Request[]
+      setRequests(data as unknown as Request[])
     }
     setLoading(false)
   }
@@ -78,41 +77,38 @@ export default function TrackingRequestsPage() {
       <h2 className="text-2xl font-bold mb-6">Tracking Stop Requests</h2>
 
       {loading ? (
-        <Loading text="Loading..."/>
+        <Loading text="Loading..." />
       ) : requests.length === 0 ? (
         <p className="text-gray-500">No stop requests found.</p>
       ) : (
         <table className="min-w-full bg-white rounded shadow">
           <thead>
             <tr className="bg-gray-50">
-              <th className="p-2 text-left">Load</th>
-              <th className="p-2 text-left">Origin</th>
-              <th className="p-2 text-left">Destination</th>
-              <th className="p-2 text-left">Driver</th>
-              <th className="p-2 text-left">Status</th>
-              <th className="p-2 text-left">Requested At</th>
-              <th className="p-2 text-left">Action</th>
+              <th className="p-2 text-sm text-left-sm">Load</th>
+              <th className="p-2 text-sm text-left-sm ">Origin</th>
+              <th className="p-2 text-sm text-left-sm">Destination</th>
+              <th className="p-2 text-sm text-left-sm">Driver</th>
+              <th className="p-2 text-sm text-left-sm">Status</th>
+              <th className="p-2 text-sm text-left-sm">Requested At</th>
+              <th className="p-2 text-sm text-left-sm">Action</th>
             </tr>
           </thead>
           <tbody>
             {requests.map((req) => (
               <tr key={req.id} className="border-t">
-                <td className="p-2">{req.loads?.load_number || "N/A"}</td>
-                <td className="p-2">{req.loads?.pickup_location || "-"}</td>
-                <td className="p-2">{req.loads?.delivery_location || "-"}</td>
-                <td className="p-2">{req.drivers?.full_name || "Unknown"}</td>
-                <td className="p-2">{req.loads?.status || "-"}</td>
-                <td className="p-2">{new Date(req.requested_at).toLocaleString()}</td>
-                <td className="p-2">
+                {/* Unwrap the first element of the loads/drivers arrays (if present) */}
+                <td className="p-2 text-sm">{req.loads?.load_number || "N/A"}</td>
+                <td className="p-2 text-sm">{req.loads?.pickup_location || "-"}</td>
+                <td className="p-2 text-sm">{req.loads?.delivery_location || "-"}</td>
+                <td className="p-2 text-sm">{req.drivers?.full_name || "Unknown"}</td>
+                <td className="p-2 text-sm">{req.loads?.status || "-"}</td>
+                <td className="p-2 text-sm">{new Date(req.requested_at).toLocaleString()}</td>
+                <td className="p-2 text-sm">
                   {req.approved ? (
                     <span className="text-green-600 font-medium">Approved</span>
                   ) : (
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => setConfirmId(req.id)}
-                    >
-                    <MapPinOff className="text-white-800"/>
+                    <Button size="sm" variant="destructive" onClick={() => setConfirmId(req.id)}>
+                      <MapPinOff className="text-white-800" />
                       Approve
                     </Button>
                   )}
