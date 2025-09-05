@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     // Create user in Supabase Auth (admin)
     const { data: userData, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,
-      password: password || "maxx-traxx-user@1234",
+      password: password || "maxxuser@1234",
       email_confirm: true,
       user_metadata: { full_name, phone },
       app_metadata: { role: "driver" }
