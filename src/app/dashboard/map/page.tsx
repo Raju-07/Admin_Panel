@@ -4,7 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { createClient } from "@supabase/supabase-js";
 import Loading from "@/components/ui/Loading";
-import { url } from "inspector";
+import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,6 +29,16 @@ type DriverLocation = {
   load_id?: string | null;
   driver_name?: string | null;
 };
+
+type RawLocationWithDriver = {
+  driver_id: string;
+  load_id: string | null;
+  latitude: number;
+  longitude: number;
+  updated_at: string;
+  drivers: { id: string; full_name: string } | { id: string; full_name: string }[] | null;
+};
+
 
 export default function MapPage() {
   const [locations, setLocations] = useState<DriverLocation[]>([]);
@@ -63,7 +74,7 @@ export default function MapPage() {
           return;
         }
 
-        const mapped: DriverLocation[] = (data || []).map((r: any) => {
+        const mapped: DriverLocation[] = (data as RawLocationWithDriver[]).map((r) => {
           // Normalize drivers: if array, take first element; if object or null, use as is
           const drivers =
             Array.isArray(r.drivers) ? (r.drivers[0] || null) : r.drivers ?? null;
@@ -99,14 +110,14 @@ export default function MapPage() {
     // ensure Realtime is enabled on Supabase dashboard for 'locations'
     const channel = supabase
       .channel("realtime:locations")
-      .on(
+      .on<RealtimePostgresChangesPayload<RawLocationRow>>(
         "postgres_changes",
         { event: "*", schema: "public", table: "locations" },
-        async (payload: any) => {
+        async (payload) => {
           try {
             const ev = payload.eventType; // "INSERT" | "UPDATE" | "DELETE"
-            const newRow: RawLocationRow | null = payload.new ?? null;
-            const oldRow: RawLocationRow | null = payload.old ?? null;
+            const newRow: RawLocationRow | null = (payload.new as RawLocationRow | null) ?? null;
+            const oldRow: RawLocationRow | null = (payload.old as RawLocationRow | null) ?? null;
 
             if (ev === "DELETE") {
               // remove by driver_id (since driver_id is PK)
@@ -163,20 +174,18 @@ export default function MapPage() {
         }
       )
       .subscribe();
-
-    // cleanup
-    return () => {
-      try {
-        supabase.removeChannel(channel);
-      } catch (err) {
-        // older clients may use channel.unsubscribe()
+      // cleanup
+      return () => {
         try {
-          (channel as any).unsubscribe?.();
-        } catch (e) {
-          /* ignore */
+          supabase.removeChannel(channel);
+        } catch (err) {
+          console.error("removeChannel error:", err);
+          // fallback if removeChannel is unavailable
+          if (typeof channel.unsubscribe === "function") {
+            channel.unsubscribe();
+          }
         }
-      }
-    };
+      };
   }, []);
 
   if (!isLoaded) return <Loading text="Loading Map..." />;
