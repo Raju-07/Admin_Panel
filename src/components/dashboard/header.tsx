@@ -15,11 +15,20 @@ export function Header() {
   }
 
   return (
-    <header className="h-16 bg-white border-b flex items-center justify-between px-6">
-      <h1 className="font-semibold text-lg">Dashboard</h1>
-      <h1 className="font-bold text-2xl justify-center">Maxx Solutions Brokerage</h1>
-      <div className="flex items-center gap-4">
-        <span className="text-sm text-gray-500">{user?.email}</span>
+    <header className="h-16 bg-white border-b flex items-center justify-between px-4 sm:px-6">
+      {/* Left: Dashboard Label */}
+      <h1 className="font-semibold text-base sm:text-lg">Dashboard</h1>
+
+      {/* Center: Company Name */}
+      <h1 className="font-bold text-lg sm:text-xl md:text-2xl text-center whitespace-nowrap overflow-hidden text-ellipsis">
+        Maxx Solutions Brokerage
+      </h1>
+
+      {/* Right: User Info + Logout */}
+      <div className="flex items-center gap-2 sm:gap-4">
+        <span className="hidden sm:inline text-sm text-gray-500 truncate max-w-[120px]">
+          {user?.email}
+        </span>
         <Button variant="outline" size="sm" onClick={handleLogout}>
           Logout
         </Button>

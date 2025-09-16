@@ -144,7 +144,7 @@ export default function LoadsPage() {
                 <button onClick={()=>setShowLoad(true)} className="px-4 py-2 bg-black text-white rounded">New Load</button>
                 </div>
               </TooltipTrigger>
-              <TooltipContent>msg</TooltipContent>
+              <TooltipContent>Create Load</TooltipContent>
             </Tooltip>
           </TooltipProvider>
       </div>
