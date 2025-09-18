@@ -33,9 +33,15 @@ export default function LoadDetailsModal({open,onClose,load}:LoadDetailsModalPro
 
                         <p className="font-semibold">Pickup:</p>
                         <p>{load.pickup_location}</p>
+                       
+                        <p className="font-semibold">Pickup Time:</p>
+                        <p>{load.pickup_datetime ? new Date(load.pickup_datetime).toLocaleString():"--"}</p>
 
                         <p className="font-semibold">Delivery:</p>
                         <p>{load.delivery_location}</p>
+
+                        <p className="font-semibold">Delivery Time:</p>
+                        <p>{load.delivery_location ? new Date(load.delivery_datetime).toLocaleString():"--"}</p>
 
                         <p className="font-semibold">Driver:</p>
                         <p>{load.drivers?.full_name || "Unassigned"}</p>

@@ -97,7 +97,6 @@ export default function DashboardHome() {
       setInTransit(prev => prev.filter(l => l.id !== loadId))
 
       //Refetching Everythig cleanly
-      location.reload()
     } catch(_err){
       console.log("failed to update the load status",_err)
       toast.error('Failed to update load status' )
@@ -106,9 +105,9 @@ export default function DashboardHome() {
 
   const renderTable = (title: string, loads: Load[]) => (
     <div className="mb-10">
-      <h2 className="text-xl font-bold mb-4">{title}</h2>
+      <h2 className="text-base font-bold mb-4">{title}</h2>
       {loads.length===0?(
-        <p className="text-gray-500">No Loads found in &quot;{title.toLowerCase()}&quot;.</p>
+        <p className="text-gray-500">No Loads.</p>
       ):(
         <table className="min-w-full bg-white rounded shadow">
           <thead>
