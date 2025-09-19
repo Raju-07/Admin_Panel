@@ -21,6 +21,7 @@ type Metrics = {
   total: number
   delivered: number
   pending: number
+  cancel : number
 }
 
 export default function DashboardHome() {
@@ -39,6 +40,7 @@ export default function DashboardHome() {
     total: 0,
     delivered: 0,
     pending: 0,
+    cancel: 0,
   })
   
   //Fetching all loads
@@ -76,7 +78,8 @@ export default function DashboardHome() {
     const delivered = data.filter(l => l.status === "Delivered").length
     const pending = data.filter(l => l.status === "Pending").length
     const ongoing = data.filter(l => l.status === "Assigned" || l.status === "In Transit").length
-    setMetrics({total,delivered,pending,ongoing})
+    const cancel = data.filter(l => l.status  === "Cancelled" || l.status === "Cancelled").length
+    setMetrics({total,delivered,pending,ongoing,cancel})
   }
   useEffect(() => {
     fetchLoads()
@@ -162,8 +165,8 @@ export default function DashboardHome() {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         {load.driver_id && !["Pending","Delivered","Cancelled"].includes(load.status ?? "") && (
-                        <Link href={`/maps?driver=${load.driver_id}`}>
-                          <Button size="sm" variant="secondary">
+                        <Link href={`/dashboard/map?driver=${load.driver_id}`}>
+                          <Button size="sm" className="tranform transmission duration-300 hover:scale-115 hover:bg-grey-50 hover: shadow-lg" variant="secondary">
                             <MapPin className="text-green-500" size={16} />
                           </Button>
                         </Link>)
@@ -178,7 +181,7 @@ export default function DashboardHome() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button size="sm" variant= "outline" onClick={()=>{setSelectedLoad(load);setShowsDetails(true);}}>
+                        <Button size="sm" variant= "outline" className="tranform transmission duration-300 hover:scale-115 hover:bg-grey-50 hover: shadow-lg" onClick={()=>{setSelectedLoad(load);setShowsDetails(true);}}>
                           <Info className="text-blue-500" size={16}/>
                         </Button>
                       </TooltipTrigger>
@@ -191,7 +194,7 @@ export default function DashboardHome() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button size="sm" variant= "outline" onClick={()=>{setSelectedLoad(load);setShowUpdateDriver(true);}} >
+                        <Button size="sm" variant= "outline" className="tranform transmission duration-300 hover:scale-115 hover:bg-grey-50 hover: shadow-lg" onClick={()=>{setSelectedLoad(load);setShowUpdateDriver(true);}} >
                           <UserRound className="text-black-500" size={16}/>
                         </Button>
                       </TooltipTrigger>
@@ -240,7 +243,7 @@ export default function DashboardHome() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-          <button onClick={()=>setShowLoad(true)} className="px-4 py-2 bg-black text-white rounded">New Load</button>
+          <button onClick={()=>setShowLoad(true)} className="px-4 py-2 bg-black text-white rounded transform transmission duration-300 hover:scale-105">New Load</button>
               </TooltipTrigger>
               <TooltipContent>Create new Load</TooltipContent>
             </Tooltip>
@@ -249,7 +252,7 @@ export default function DashboardHome() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button onClick={()=>setShowDriver(true)} className="px-4 py-2 bg-black text-white border rounded">Add Driver</button>
+                <button onClick={()=>setShowDriver(true)} className="px-4 py-2 bg-black text-white border rounded transform transmission duration-300 hover:scale-105">Add Driver</button>
               </TooltipTrigger>
               <TooltipContent>Add New Driver</TooltipContent>
             </Tooltip>
@@ -258,22 +261,32 @@ export default function DashboardHome() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white shadow rounded-lg p-4">
-          <h3 className="text-sm text-gray-500">Ongoing Loads</h3>
-          <p className="text-2xl font-bold">{metrics.ongoing}</p>
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        {/* Cards 1-5 for showing Load info */}
+
+        <div className="bg-white shadow-lg rounded-lg p-4 transform transition duration-300 hover:scale-105 hover:bg-green-100">
+          <h3 className="text-sm text-green-400">Ongoing Loads</h3>
+          <p className="text-2xl text-green-400 font-bold">{metrics.ongoing}</p>
         </div>
-        <div className="bg-white shadow rounded-lg p-4">
-          <h3 className="text-sm text-gray-500">Total Loads</h3>
-          <p className="text-2xl font-bold">{metrics.total}</p>
+
+        <div className="bg-white shadow-lg rounded-lg p-4 transform transition duration-300 hover:scale-105 hover:bg-blue-100">
+          <h3 className="text-sm text-blue-500">Total Loads</h3>
+          <p className="text-2xl text-blue-500 font-bold">{metrics.total}</p>
         </div>
-        <div className="bg-white shadow rounded-lg p-4">
-          <h3 className="text-sm text-gray-500">Delivered Loads</h3>
-          <p className="text-2xl font-bold">{metrics.delivered}</p>
+        
+        <div className="bg-white shadow-lg rounded-lg p-4 transform transition duration-300 hover:scale-105 hover:bg-green-300">
+          <h3 className="text-sm text-green-800">Delivered Loads</h3>
+          <p className="text-2xl text-green-800 font-bold">{metrics.delivered}</p>
         </div>
-        <div className="bg-white shadow rounded-lg p-4">
-          <h3 className="text-sm text-gray-500">Pending Loads</h3>
-          <p className="text-2xl font-bold">{metrics.pending}</p>
+        
+        <div className="bg-white shadow-lg rounded-lg p-4 transform transition duration-300 hover:scale-105 hover:bg-yellow-100">
+          <h3 className="text-sm text-yellow-500">Pending Loads</h3>
+          <p className="text-2xl text-yellow-500 font-bold">{metrics.pending}</p>
+        </div>
+        
+        <div className="bg-white shadow-lg rounded-lg p-4 transform transition duration-300 hover:scale-105 hover:bg-red-100">
+          <h3 className="text-sm text-red-500">Cancel Loads</h3>
+          <p className="text-2xl text-red-500 font-bold">{metrics.pending}</p>
         </div>
       </div>
 

@@ -107,7 +107,7 @@ export default function TrackingRequestsPage() {
                   {req.approved ? (
                     <span className="text-green-600 font-medium">Approved</span>
                   ) : (
-                    <Button size="sm" variant="destructive" onClick={() => setConfirmId(req.id)}>
+                    <Button size="sm" variant="destructive" className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" onClick={() => setConfirmId(req.id)}>
                       <MapPinOff className="text-white-800" />
                       Approve
                     </Button>

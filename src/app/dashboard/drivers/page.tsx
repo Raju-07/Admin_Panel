@@ -84,7 +84,7 @@ return (
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex justify-end">
-                  <button  onClick={()=>setShowDriver(true)} className="px-4 py-2 bg-black text-white  rounded ">New Driver</button>
+                  <button  onClick={()=>setShowDriver(true)} className="px-4 py-2 bg-black text-white  rounded transform transmission duration-300 hover:scale-105 hover: shadow-lg">New Driver</button>
                 </div>
               </TooltipTrigger>
               <TooltipContent>Add New Driver</TooltipContent>
@@ -115,7 +115,7 @@ return (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button size="sm" variant="outline" onClick={() => handleEdit(driver)}>
+                      <Button size="sm" variant="outline" className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" onClick={() => handleEdit(driver)}>
                         <Pencil className="text-yellow-600" size={16} />
                       </Button>
                     </TooltipTrigger>
@@ -126,7 +126,7 @@ return (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button size="sm" variant="destructive" onClick={() => handleDelete(driver.id)}>
+                      <Button size="sm" variant="destructive" className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" onClick={() => handleDelete(driver.id)}>
                         <Trash2 size={16} />
                       </Button>
                     </TooltipTrigger>
@@ -141,7 +141,7 @@ return (
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button className="px-5" size="sm" variant="outline" onClick={() => window.location.href = `tel:${driver.phone}`}>
+                        <Button className="px-5 tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" size="sm" variant="outline" onClick={() => window.location.href = `tel:${driver.phone}`}>
                           <Phone className="text-green-600" size={16} />
                         </Button>
                       </TooltipTrigger>
@@ -153,7 +153,7 @@ return (
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button className="px-5" size="sm" variant="outline" onClick={() => window.location.href = `mailto:${driver.email}`}>
+                        <Button className="px-5 tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" size="sm" variant="outline"  onClick={() => window.location.href = `mailto:${driver.email}`}>
                           <Mail className="text-blue-600" size={16} />
                         </Button>
                       </TooltipTrigger>
@@ -164,7 +164,7 @@ return (
               {/* For sending Loggin Credential */}
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg">
                         <FileLock2 size={16} className="text-purple-500" /> Send Credentials
                       </Button>
                     </AlertDialogTrigger>
@@ -242,15 +242,15 @@ return (
             Email
             <Input
               className="p-2 border rounded"
-              placeholder="Pallets"
+              placeholder="Email Id"
               value={currentDriver?.email || ""}
               onChange={(e) => currentDriver && setCurrentDriver({ ...currentDriver, email: e.target.value })}
             />
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleSaveEdit}>Save Changes</Button>
+            <Button variant="outline" onClick={() => setEditModalOpen(false)} className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg">Cancel</Button>
+            <Button onClick={handleSaveEdit} className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg">Save Changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

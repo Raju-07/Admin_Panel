@@ -5,7 +5,8 @@ import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { createClient } from "@supabase/supabase-js";
 import Loading from "@/components/ui/Loading";
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
-
+import { useSearchParams } from "next/navigation";
+import UpdateDriverDialog from "@/components/dashboard/UpdateDriverDialog";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,6 +29,10 @@ type DriverLocation = {
   updated_at: string | null;
   load_id?: string | null;
   driver_name?: string | null;
+  load_number?: string | null;
+  pickup_location ?: string | null;
+  delivery_location ?: string | null;
+  load_status ?: string | null;
 };
 
 type RawLocationWithDriver = {
@@ -37,10 +42,13 @@ type RawLocationWithDriver = {
   longitude: number;
   updated_at: string;
   drivers: { id: string; full_name: string } | { id: string; full_name: string }[] | null;
+  loads: {load_number: string; pickup_location: string; delivery_location: string; status: string} | {load_number: string; pickup_location: string; delivery_location: string; status: string}[] | null;
 };
 
 
 export default function MapPage() {
+  const searchParams = useSearchParams();
+  const driverId = searchParams.get("driver"); 
   const [locations, setLocations] = useState<DriverLocation[]>([]);
   const [loadingLocations, setLoadingLocations] = useState(true);
   const driversMapRef = useRef<Record<string, string | null>>({}); // driver_id => name
@@ -65,7 +73,8 @@ export default function MapPage() {
             longitude,
             updated_at,
             load_id,
-            drivers ( id, full_name )
+            drivers ( id, full_name ),
+            loads (load_number,pickup_location,delivery_location,status)
           `);
 
         if (error) {
@@ -76,8 +85,8 @@ export default function MapPage() {
 
         const mapped: DriverLocation[] = (data as RawLocationWithDriver[]).map((r) => {
           // Normalize drivers: if array, take first element; if object or null, use as is
-          const drivers =
-            Array.isArray(r.drivers) ? (r.drivers[0] || null) : r.drivers ?? null;
+          const drivers = Array.isArray(r.drivers) ? (r.drivers[0] || null) : r.drivers ?? null;
+          const load = Array.isArray(r.loads) ? (r.loads[0] || null ) : r.loads ?? null;
           const name = drivers?.full_name ?? null;
           if (drivers?.id) driversMapRef.current[drivers.id] = name;
           return {
@@ -87,6 +96,10 @@ export default function MapPage() {
             updated_at: r.updated_at,
             load_id: r.load_id ?? null,
             driver_name: name,
+            load_number: load?.load_number ?? null,
+            pickup_location: load?.pickup_location ?? null,
+            delivery_location: load?.delivery_location ?? null,
+            load_status: load?.status ?? null,
           };
         });
 
@@ -189,23 +202,28 @@ export default function MapPage() {
   }, []);
 
   if (!isLoaded) return <Loading text="Loading Map..." />;
-  if (loadingLocations) return <Loading text="Loading Locations..." />;
+  if (loadingLocations) return <Loading text="Fetching Locations..." />;
 
-  // map center = first location (if any)
-  const center = locations.length
+  // maps center = driver Location if driverId present, else all
+  const targetLocation = driverId ? locations.find((l) => l.driver_id===driverId): null;
+
+  const center = targetLocation?
+  {lat: targetLocation.latitude,lng:targetLocation.longitude}:locations.length
     ? { lat: locations[0].latitude, lng: locations[0].longitude }
     : { lat: 20.5937, lng: 78.9629 };
+  
+  const zoomLevel = driverId ? 12:6;
 
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6">Live Map</h2>
       <div className="bg-white border rounded-xl overflow-hidden">
-        <GoogleMap mapContainerStyle={{ width: "100%", height: "500px" }} center={center} zoom={6}>
-          {locations.map((loc) => (
+        <GoogleMap mapContainerStyle={{ width: "100%", height: "500px" }} center={center} zoom={zoomLevel}>
+          { (driverId ? locations.filter(l => l.driver_id === driverId):locations).map((loc) => (
             <Marker
               key={loc.driver_id}
               position={{ lat: loc.latitude, lng: loc.longitude }}
-              title={`Driver: ${loc.driver_name}\n Updated: ${loc.updated_at ? new Date(loc.updated_at).toLocaleString():"--"}\n `}
+              title={`Driver: ${loc.driver_name}\nLoad No: ${loc.load_number} \n Status: ${loc.load_status} \n Pickup: ${loc.pickup_location} \n Delivery: ${loc.delivery_location} \nUpdated: ${loc.updated_at ? new Date(loc.updated_at).toLocaleString():"--"}`}
               label={{ text: loc.driver_name ?? "", color:"#000",fontWeight:"bold", }}
               icon={{url:"/icons/semi.png", scaledSize:new google.maps.Size(40,40), 
                 labelOrigin: new google.maps.Point(20,-10)
@@ -220,20 +238,22 @@ export default function MapPage() {
           <thead>
             <tr className="bg-gray-50">
               <th className="p-2 text-left">Driver</th>
+              <th className="p-2 text-left">Load</th>
+              <th className="p-2 text-left">Status</th>
               <th className="p-2 text-left">Lat</th>
               <th className="p-2 text-left">Lng</th>
               <th className="p-2 text-left">Updated At</th>
-              <th className="p-2 text-left">Load</th>
             </tr>
           </thead>
           <tbody>
             {locations.map((l) => (
               <tr key={l.driver_id} className="border-t text-sm">
                 <td className="p-2">{l.driver_name ?? l.driver_id}</td>
+                <td className="p-2">{l.load_number ?? "-"}</td>
+                <td className="p-2">{l.load_status ?? "-"}</td>
                 <td className="p-2">{Number(l.latitude).toFixed(6)}</td>
                 <td className="p-2">{Number(l.longitude).toFixed(6)}</td>
                 <td className="p-2">{l.updated_at ? new Date(l.updated_at).toLocaleString() : "-"}</td>
-                <td className="p-2">{l.load_id ?? "-"}</td>
               </tr>
             ))}
           </tbody>
