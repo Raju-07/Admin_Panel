@@ -140,7 +140,7 @@ export default function DashboardHome() {
                         handleUpdateStatus(load.id,value)
                       }
                   }}>
-                  <SelectTrigger className="w-[140px]">
+                  <SelectTrigger className="w-[140px] transform transmission duration-300 hover:scale-105 hover:shadow-lg">
                     <SelectValue placeholder="Update status"/>
                       </SelectTrigger>
                       <SelectContent>
@@ -243,16 +243,24 @@ export default function DashboardHome() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-          <button onClick={()=>setShowLoad(true)} className="px-4 py-2 bg-black text-white rounded transform transmission duration-300 hover:scale-105">New Load</button>
+                <button
+                  onClick={() => setShowLoad(true)}
+                  className="px-4 py-2 bg-black text-white rounded transform duration-300 hover:scale-110 w-full sm:w-auto">
+                  New Load
+                </button>
               </TooltipTrigger>
               <TooltipContent>Create new Load</TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          
+
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button onClick={()=>setShowDriver(true)} className="px-4 py-2 bg-black text-white border rounded transform transmission duration-300 hover:scale-105">Add Driver</button>
+                <button
+                  onClick={() => setShowDriver(true)}
+                  className="px-4 py-2 bg-black text-white border rounded transform duration-300 hover:scale-110 w-full sm:w-auto">
+                  Add Driver
+                </button>
               </TooltipTrigger>
               <TooltipContent>Add New Driver</TooltipContent>
             </Tooltip>
@@ -264,34 +272,34 @@ export default function DashboardHome() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         {/* Cards 1-5 for showing Load info */}
 
-        <div className="bg-white shadow-lg rounded-lg p-4 transform transition duration-300 hover:scale-105 hover:bg-green-100">
+        <div className="bg-white shadow-lg rounded-lg p-4 transform transition duration-300 hover:scale-110 hover:bg-green-100">
           <h3 className="text-sm text-green-400">Ongoing Loads</h3>
           <p className="text-2xl text-green-400 font-bold">{metrics.ongoing}</p>
         </div>
 
-        <div className="bg-white shadow-lg rounded-lg p-4 transform transition duration-300 hover:scale-105 hover:bg-blue-100">
+        <div className="bg-white shadow-lg rounded-lg p-4 transform transition duration-300 hover:scale-110 hover:bg-blue-100">
           <h3 className="text-sm text-blue-500">Total Loads</h3>
           <p className="text-2xl text-blue-500 font-bold">{metrics.total}</p>
         </div>
         
-        <div className="bg-white shadow-lg rounded-lg p-4 transform transition duration-300 hover:scale-105 hover:bg-green-300">
+        <div className="bg-white shadow-lg rounded-lg p-4 transform transition duration-300 hover:scale-110 hover:bg-green-300">
           <h3 className="text-sm text-green-800">Delivered Loads</h3>
           <p className="text-2xl text-green-800 font-bold">{metrics.delivered}</p>
         </div>
         
-        <div className="bg-white shadow-lg rounded-lg p-4 transform transition duration-300 hover:scale-105 hover:bg-yellow-100">
+        <div className="bg-white shadow-lg rounded-lg p-4 transform transition duration-300 hover:scale-110 hover:bg-yellow-100">
           <h3 className="text-sm text-yellow-500">Pending Loads</h3>
           <p className="text-2xl text-yellow-500 font-bold">{metrics.pending}</p>
         </div>
         
-        <div className="bg-white shadow-lg rounded-lg p-4 transform transition duration-300 hover:scale-105 hover:bg-red-100">
+        <div className="bg-white shadow-lg rounded-lg p-4 transform transition duration-300 hover:scale-110 hover:bg-red-100">
           <h3 className="text-sm text-red-500">Cancel Loads</h3>
-          <p className="text-2xl text-red-500 font-bold">{metrics.pending}</p>
+          <p className="text-2xl text-red-500 font-bold">{metrics.cancel}</p>
         </div>
       </div>
 
       <div>
-        <h1 className="text-2xl font-bold mb-6">Loads</h1>
+        <h1 className="text-2xl font-bold mb-6 py-2">Loads</h1>
         {loading?(
           <Loading text="Fetching Loads..."/>
         ):(

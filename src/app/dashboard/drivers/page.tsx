@@ -115,7 +115,7 @@ return (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button size="sm" variant="outline" className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" onClick={() => handleEdit(driver)}>
+                      <Button size="sm" variant="outline" className="tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg" onClick={() => handleEdit(driver)}>
                         <Pencil className="text-yellow-600" size={16} />
                       </Button>
                     </TooltipTrigger>
@@ -126,7 +126,7 @@ return (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button size="sm" variant="destructive" className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" onClick={() => handleDelete(driver.id)}>
+                      <Button size="sm" variant="destructive" className="tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg" onClick={() => handleDelete(driver.id)}>
                         <Trash2 size={16} />
                       </Button>
                     </TooltipTrigger>
@@ -141,7 +141,7 @@ return (
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button className="px-5 tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" size="sm" variant="outline" onClick={() => window.location.href = `tel:${driver.phone}`}>
+                        <Button className="px-5 tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg" size="sm" variant="outline" onClick={() => window.location.href = `tel:${driver.phone}`}>
                           <Phone className="text-green-600" size={16} />
                         </Button>
                       </TooltipTrigger>
@@ -153,7 +153,7 @@ return (
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button className="px-5 tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" size="sm" variant="outline"  onClick={() => window.location.href = `mailto:${driver.email}`}>
+                        <Button className="px-5 tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg" size="sm" variant="outline"  onClick={() => window.location.href = `mailto:${driver.email}`}>
                           <Mail className="text-blue-600" size={16} />
                         </Button>
                       </TooltipTrigger>
@@ -249,8 +249,8 @@ return (
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditModalOpen(false)} className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg">Cancel</Button>
-            <Button onClick={handleSaveEdit} className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg">Save Changes</Button>
+            <Button variant="outline" onClick={() => setEditModalOpen(false)} className="tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg">Cancel</Button>
+            <Button onClick={handleSaveEdit} className="tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg">Save Changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

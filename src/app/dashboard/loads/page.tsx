@@ -13,6 +13,7 @@ import CreateLoadModal from "@/components/dashboard/CreateLoadModal";
 import LoadDetailsModal from "@/components/dashboard/LoadDetailsModal";
 import { TooltipProvider,Tooltip,TooltipTrigger,TooltipContent } from "@/components/ui/tooltip";
 import {Load} from "@/types"
+import { useLoadNotifications } from "@/hooks/useLoadNotifications";
 
 export default function LoadsPage() {
   const [loads, setLoads] = useState<Load[]>([]);
@@ -23,6 +24,7 @@ export default function LoadsPage() {
   const [filteredLoads, setFilteredLoads] = useState<Load[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter ] = useState("all");
+  useLoadNotifications(); //Start Listening for any changes
 
 
   // Modal State
@@ -141,7 +143,7 @@ export default function LoadsPage() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex gap-2">
-                <button onClick={()=>setShowLoad(true)} className="px-4 py-2 bg-black text-white rounded tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg">New Load</button>
+                <button onClick={()=>setShowLoad(true)} className="px-4 py-2 bg-black text-white rounded tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg">New Load</button>
                 </div>
               </TooltipTrigger>
               <TooltipContent>Create Load</TooltipContent>
@@ -181,7 +183,7 @@ export default function LoadsPage() {
           </SelectContent>
         </Select>
 
-        <Button onClick={applyFilters} className="ml-2 tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg">
+        <Button onClick={applyFilters} className="ml-2 tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg">
           Search
         </Button>
       </div>
@@ -215,7 +217,7 @@ export default function LoadsPage() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>      
-                        <Button size="sm" variant="outline" className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" onClick={() => handleEdit(load)}>
+                        <Button size="sm" variant="outline" className="tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg" onClick={() => handleEdit(load)}>
                           <Pencil className="text-yellow-500" size={16} />
                         </Button>
                       </TooltipTrigger>
@@ -226,7 +228,7 @@ export default function LoadsPage() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button size="sm" variant="outline" className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" onClick={() => handleRefresh(load.id)}>
+                        <Button size="sm" variant="outline" className="tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg" onClick={() => handleRefresh(load.id)}>
                           <UserRoundMinus className="text-red-500" size={16} />
                         </Button>
                       </TooltipTrigger>
@@ -237,7 +239,7 @@ export default function LoadsPage() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button size="sm" variant="destructive" className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" onClick={() => handleDelete(load.id)}>
+                        <Button size="sm" variant="destructive" className="tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg" onClick={() => handleDelete(load.id)}>
                           <Trash2 size={16} />
                         </Button>
                       </TooltipTrigger>
@@ -250,7 +252,7 @@ export default function LoadsPage() {
                       <TooltipTrigger asChild>
                         {load.driver_id && !["Pending","Delivered","Cancelled"].includes(load.status ?? "") && (
                           <Link href={`/dashboard/map?driver=${load.driver_id}`}>
-                            <Button size="sm" variant="outline" className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg">
+                            <Button size="sm" variant="outline" className="tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg">
                               <MapPin className="text-green-500" size={16} />
                             </Button>
                           </Link>
@@ -263,7 +265,7 @@ export default function LoadsPage() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button size="sm" variant="outline" className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" onClick={()=>{setSelectedLoad(load); setShowsDetails(true)}}>
+                        <Button size="sm" variant="outline" className="tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg" onClick={()=>{setSelectedLoad(load); setShowsDetails(true)}}>
                             <Info className="text-blue-500" size={16} />
                         </Button>
                       </TooltipTrigger>
@@ -350,8 +352,8 @@ export default function LoadsPage() {
 
 
           <DialogFooter>
-            <Button variant="outline" className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" onClick={() => setEditModalOpen(false)}>Cancel</Button>
-            <Button className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" onClick={handleSaveEdit}>Save Changes</Button>
+            <Button variant="outline" className="tranform transmission duration-300 hover:scale-105 hover:bg-grey-50 hover: shadow-lg" onClick={() => setEditModalOpen(false)}>Cancel</Button>
+            <Button className="tranform transmission duration-300 hover:scale-105 hover:bg-grey-50 hover: shadow-lg" onClick={handleSaveEdit}>Save Changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

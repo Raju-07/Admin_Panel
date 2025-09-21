@@ -6,7 +6,6 @@ import { createClient } from "@supabase/supabase-js";
 import Loading from "@/components/ui/Loading";
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { useSearchParams } from "next/navigation";
-import UpdateDriverDialog from "@/components/dashboard/UpdateDriverDialog";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -27,7 +27,7 @@ export function Header() {
         <span className="hidden sm:inline text-sm text-gray-500 truncate max-w-[120px]">
           {user?.email}
         </span>
-        <Button variant="outline" size="sm" onClick={handleLogout}>
+        <Button variant="outline" size="sm" className="tranform transmission duration-300 hover:scale-110 hover:shadow-lg hover:bg-red-50" onClick={handleLogout}>
           Logout
         </Button>
       </div>
