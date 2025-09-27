@@ -1,15 +1,47 @@
 // src/hooks/useLoadNotifications.ts
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { toast } from "sonner";
-
+// Define Load type for consistency
+export type Load = {
+  id: string;
+  load_number: string;
+  pickup_location: string;
+  pickup_datetime: string;
+  delivery_location: string;
+  delivery_datetime: string;
+  commodity: string | null;
+  pallets: number | null;
+  driver_id: string | null;
+  status: string;
+  created_at: string;
+  weights: number | null;
+};
 
 export function useLoadNotifications() {
+  const [loads, setLoads] = useState<Load[]>([]);
+  const [loading, setLoading] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const deliveryaudioRef = useRef<HTMLAudioElement | null>(null);
 
+// Fetch initial data
+  useEffect(() => {
+    const fetchLoads = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("loads")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error && data) setLoads(data as Load[]);
+      setLoading(false);
+    };
+    fetchLoads();
+  }, []);
+
+//subscribe to realtime
   useEffect(() => {
     audioRef.current = new Audio("/notify.mp3");
     deliveryaudioRef.current = new Audio("/notify_delivered.mp3")
@@ -23,15 +55,17 @@ export function useLoadNotifications() {
           console.log("Realtime change:", payload);
           
 
-          // Decide message
+          // Notification message
           let title = "";
           let message = "";
+
           if (payload.eventType === "INSERT") {
             title = `📦 New Load Created`
             message = `Load: ${payload.new.load_number} has been successfully added to the system`;
+            setLoads((prev) => [payload.new as Load,...prev]);
           } 
           else if (payload.eventType === "UPDATE") {
-
+            setLoads((prev) => prev.map((l) => (l.id === payload.new.id ? (payload.new as Load):l)));
             if (payload.new.status !== payload.old.status){
               //Load is set to Pending
             if(payload.new.status === "Pending"){
@@ -58,11 +92,14 @@ export function useLoadNotifications() {
             }else if(payload.new.status === "Cancelled"){
               title = `   ❌ Load Cancelled`
               message = `Load: ${payload.new.load_number} has been cancelled.`
-            }}
+            }}else{
+              console.log("Working i'm in else part if the status doesn't change")
+            }
           }
            else if (payload.eventType === "DELETE") {
             title = `   🗑️ Load Deleted`
             message = `Load: ${payload.old.load_number} has been removed from the system.`;
+            setLoads((prev) => prev.filter((l) => l.id !== payload.old.id));
           }
 
           // Show toast
@@ -89,4 +126,5 @@ export function useLoadNotifications() {
       supabase.removeChannel(channel);
     };
   }, []);
+  return {loads,loading};
 }

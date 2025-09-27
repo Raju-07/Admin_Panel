@@ -312,8 +312,8 @@ export default function DashboardHome() {
       </div>
 
 
-      {showDriver && <AddDriverModal onClose={()=>setShowDriver(false)} onCreated={()=>{/* refresh UI if needed */}} />}
-      {showLoad && <CreateLoadModal onClose={()=>setShowLoad(false)} onCreated={()=>{/* refresh UI if needed */}} />}
+      {showDriver && <AddDriverModal onClose={()=>setShowDriver(false)} onCreated={()=>{fetchLoads()}} />}
+      {showLoad && <CreateLoadModal onClose={()=>setShowLoad(false)} onCreated={()=>{fetchLoads()}} />}
       {showDetails && (<LoadDetailsModal open={showDetails} onClose={()=> setShowsDetails(false)} load={selectedLoad}/>)}
       {showUpdateDriver && (<UpdateDriverDialog open={showUpdateDriver} onClose={()=> setShowUpdateDriver(false)}
       loadId={selectedLoad?.id ?? ""}

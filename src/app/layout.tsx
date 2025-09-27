@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Maxx Traxx Admin Panel",
+  title: "Admin Panel",
   description: "Manage drivers, loads, and maps in real time",
 };
 
@@ -34,7 +34,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           gap={8}             //spacing btw stacked toast
           duration={5000}     // auto close after 5s 
           visibleToasts={5}   // max toast visible at once
-          
           />
           <ClientNotifications/>
         </AuthProvider>
