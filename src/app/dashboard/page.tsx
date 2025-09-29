@@ -82,17 +82,43 @@ export default function DashboardHome() {
     setMetrics({total,delivered,pending,ongoing,cancel})
   }
   useEffect(() => {
-    fetchLoads()
-    fetchMetrics()
-    fetchLoads()
-  },[])
+      fetchLoads()
+      fetchMetrics()
+    },[])
+
+  // Listen for realtime changes in loads
+  useEffect(() => {
+    const channel = supabase
+      .channel("loads-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*", // INSERT, UPDATE, DELETE
+          schema: "public",
+          table: "loads"
+        },
+        (payload) => {
+          console.log("Payload of Web app deshboard")
+          console.log("Realtime change:", payload);
+
+          // Refresh both loads and metrics
+          fetchLoads();
+          fetchMetrics();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
 
   const handleUpdateStatus = async (loadId: string, newStatus: string) => {
     try{
       const {error} = await supabase.from("loads").update({status:newStatus}).eq("id",loadId)
 
-      if (error) throw error
-
+     if (error) throw error
       toast.success(`Load updated to "${newStatus}"`)
       //Refreshing UI
       setPending(prev => prev.filter(l => l.id !== loadId))

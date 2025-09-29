@@ -6,7 +6,9 @@ import { createClient } from "@supabase/supabase-js";
 import Loading from "@/components/ui/Loading";
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { useSearchParams } from "next/navigation";
-
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { toast } from "sonner"
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -46,6 +48,7 @@ type RawLocationWithDriver = {
 
 
 export default function MapPage() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const searchParams = useSearchParams();
   const driverId = searchParams.get("driver"); 
   const [locations, setLocations] = useState<DriverLocation[]>([]);
@@ -117,9 +120,20 @@ export default function MapPage() {
     };
   }, []);
 
+  const handleDelete = async (driverId: string) => {
+    const { error } = await supabase.from("locations").delete().eq("driver_id", driverId);
+    if (!error) {
+      toast.success("Load Deleted Successfully");
+    } else {
+      toast.error("Failed to delete load");
+    }
+  };
+
   // Realtime subscription for INSERT/UPDATE/DELETE on 'locations'
   useEffect(() => {
     // ensure Realtime is enabled on Supabase dashboard for 'locations'
+    audioRef.current = new Audio("/notify.mp3")
+
     const channel = supabase
       .channel("realtime:locations")
       .on<RealtimePostgresChangesPayload<RawLocationRow>>(
@@ -130,6 +144,14 @@ export default function MapPage() {
             const ev = payload.eventType; // "INSERT" | "UPDATE" | "DELETE"
             const newRow: RawLocationRow | null = (payload.new as RawLocationRow | null) ?? null;
             const oldRow: RawLocationRow | null = (payload.old as RawLocationRow | null) ?? null;
+            let title = ""
+            let message = ""
+            if (ev === "INSERT"){
+              title = "Driver is being Tracking 📍🌎"
+              message = "Please open the map to see the current location of the driver"
+              toast.info(title,{description:message})
+              audioRef.current?.play().catch((err) => console.warn("Sound play blocked:",err))
+            }
 
             if (ev === "DELETE") {
               // remove by driver_id (since driver_id is PK)
@@ -140,6 +162,7 @@ export default function MapPage() {
               }
               return;
             }
+
 
             if (!newRow) return;
 
@@ -242,6 +265,7 @@ export default function MapPage() {
               <th className="p-2 text-left">Lat</th>
               <th className="p-2 text-left">Lng</th>
               <th className="p-2 text-left">Updated At</th>
+              <th className="p-2 text-left">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -253,6 +277,14 @@ export default function MapPage() {
                 <td className="p-2">{Number(l.latitude).toFixed(6)}</td>
                 <td className="p-2">{Number(l.longitude).toFixed(6)}</td>
                 <td className="p-2">{l.updated_at ? new Date(l.updated_at).toLocaleString() : "-"}</td>
+                <td className="p-2">
+                  <Button size="sm" 
+                    variant="destructive" 
+                    className="tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg" 
+                    onClick={() => handleDelete(l.driver_id)}>
+                      <Trash2 size={16} />
+                  </Button>
+                </td>
               </tr>
             ))}
           </tbody>

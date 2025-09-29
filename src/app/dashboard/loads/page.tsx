@@ -13,26 +13,44 @@ import CreateLoadModal from "@/components/dashboard/CreateLoadModal";
 import LoadDetailsModal from "@/components/dashboard/LoadDetailsModal";
 import { TooltipProvider,Tooltip,TooltipTrigger,TooltipContent } from "@/components/ui/tooltip";
 import {Load} from "@/types"
-import { useLoadNotifications  } from "@/hooks/useLoadNotifications";
+import { useLoadNotifications } from "@/hooks/useLoadNotifications";
 
 export default function LoadsPage() {
-  const {loads, loading } = useLoadNotifications();
+  const [loads, setLoads] = useState<Load[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showLoad, setShowLoad] = useState(false);
   const [showDetails, setShowsDetails] = useState(false);
   const [selectedLoad, setSelectedLoad] = useState<Load | null>(null)
   const [filteredLoads, setFilteredLoads] = useState<Load[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter ] = useState("all");
+  useLoadNotifications(); //Start Listening for any changes
 
 
   // Modal State
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [currentLoad, setCurrentLoad] = useState<Partial<Load> | null>(null);
-  
-  useEffect(() => {
-    setFilteredLoads(loads);
-  }, [loads]);
-  
+
+  const fetchLoads = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("loads")
+      .select(`
+        *,
+        drivers:driver_id(full_name)
+      `)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching loads:", error);
+      toast.error("Failed to fetch loads");
+    } else {
+      setLoads(data || []);
+      setFilteredLoads(data || []);
+    }
+    setLoading(false);
+  };
+
   // Apply Filter
   const applyFilters = () => {
     let filtered = loads;
@@ -44,8 +62,8 @@ export default function LoadsPage() {
         (load) =>
           String(load.load_number ?? "").toLowerCase().includes(term) ||
           String(load.pickup_location ?? "").toLowerCase().includes(term) ||
-          String(load.delivery_location ?? "").toLowerCase().includes(term) 
-          // String(load.drivers?.full_name ?? "").toLowerCase().includes(term) 
+          String(load.delivery_location ?? "").toLowerCase().includes(term) ||
+          String(load.drivers?.full_name ?? "").toLowerCase().includes(term)
       );
     }
 
@@ -63,11 +81,15 @@ export default function LoadsPage() {
   };
 
   
+  useEffect(() => {
+    fetchLoads();
+  }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("loads").delete().eq("id", id);
     if (!error) {
       toast.success("Load Deleted Successfully");
+      fetchLoads();
     } else {
       toast.error("Failed to delete load");
     }
@@ -77,6 +99,7 @@ export default function LoadsPage() {
     const { error } = await supabase.from("loads").update({ driver_id: null }).eq("id", id);
     if (!error) {
       toast.success("Load Unassigned Successfully");
+      fetchLoads();
     } else {
       toast.error("Failed to unassign load");
     }
@@ -106,6 +129,7 @@ export default function LoadsPage() {
     if (!error) {
       toast.success("Load updated successfully");
       setEditModalOpen(false);
+      fetchLoads();
     } else {
       toast.error("Failed to update load");
     }
@@ -334,7 +358,7 @@ export default function LoadsPage() {
         </DialogContent>
       </Dialog>
 
-      {showLoad && <CreateLoadModal onClose={()=>setShowLoad(false)} onCreated={()=>{}} />}
+      {showLoad && <CreateLoadModal onClose={()=>setShowLoad(false)} onCreated={()=>{fetchLoads()}} />}
       {showDetails && (<LoadDetailsModal open={showDetails} onClose={() => setShowsDetails(false)} load={selectedLoad}/>)}
     </div>
   );

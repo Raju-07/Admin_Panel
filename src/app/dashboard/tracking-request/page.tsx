@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { supabase } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -25,9 +25,8 @@ type Request = {
   loads: { id: string; load_number: string; pickup_location: string; delivery_location: string; status: string } | null
 }
 
-
-
 export default function TrackingRequestsPage() {
+  const audioRef = useRef<HTMLAudioElement | null >(null);
   const [requests, setRequests] = useState<Request[]>([])
   const [loading, setLoading] = useState(true)
   const [confirmId, setConfirmId] = useState<string | null>(null)
@@ -36,18 +35,59 @@ export default function TrackingRequestsPage() {
     fetchRequests()
   }, [])
 
+  // 👇 Realtime subscription for new requests
+  useEffect(() => {
+    audioRef.current = new Audio("/notify.mp3")
+
+    const channel = supabase
+      .channel("tracking-stop-requests-admin")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "tracking_stop_requests",
+        },
+        (payload) => {
+          console.log("📡 New stop request:", payload)
+          // Append new request to state
+          fetchRequests();
+          toast.info("Tracking stop requested", {
+            description: "Please confirm before ending location tracking.",
+            position: "top-right",
+            duration: 10000, // 7 seconds
+            icon: "📍", // Optional custom icon
+            style: {
+              background: "#eef4ff",
+              color: "#1a1a1a",
+              borderRadius: "8px",
+              fontWeight: "500",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
+            }
+          });
+
+          audioRef.current?.play().catch((err)=>console.warn("Sound Play Blocked:",err))
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [])
+
   const fetchRequests = async () => {
     setLoading(true)
     const { data, error } = await supabase
-  .from("tracking_stop_requests")
-  .select(`
-    id,
-    approved,
-    requested_at,
-    drivers:driver_id ( id, full_name, phone ),
-    loads:load_id ( id, load_number, pickup_location, delivery_location, status )
-  `)
-  .order("requested_at", { ascending: false })
+      .from("tracking_stop_requests")
+      .select(`
+        id,
+        approved,
+        requested_at,
+        drivers:driver_id ( id, full_name, phone ),
+        loads:load_id ( id, load_number, pickup_location, delivery_location, status )
+      `)
+      .order("requested_at", { ascending: false })
 
     if (error) {
       toast.error("Failed to fetch requests")
@@ -107,7 +147,12 @@ export default function TrackingRequestsPage() {
                   {req.approved ? (
                     <span className="text-green-600 font-medium">Approved</span>
                   ) : (
-                    <Button size="sm" variant="destructive" className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg" onClick={() => setConfirmId(req.id)}>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="tranform transmission duration-300 hover:scale-110 hover:bg-grey-50 hover: shadow-lg"
+                      onClick={() => setConfirmId(req.id)}
+                    >
                       <MapPinOff className="text-white-800" />
                       Approve
                     </Button>
