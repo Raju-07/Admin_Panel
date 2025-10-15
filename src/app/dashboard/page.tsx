@@ -98,9 +98,6 @@ export default function DashboardHome() {
           table: "loads"
         },
         (payload) => {
-          console.log("Payload of Web app deshboard")
-          console.log("Realtime change:", payload);
-
           // Refresh both loads and metrics
           fetchLoads();
           fetchMetrics();

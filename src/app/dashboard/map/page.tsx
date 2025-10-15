@@ -232,7 +232,7 @@ export default function MapPage() {
   const center = targetLocation?
   {lat: targetLocation.latitude,lng:targetLocation.longitude}:locations.length
     ? { lat: locations[0].latitude, lng: locations[0].longitude }
-    : { lat: 20.5937, lng: 78.9629 };
+    : { lat: 36.966428, lng: -95.844032};
   
   const zoomLevel = driverId ? 12:6;
 

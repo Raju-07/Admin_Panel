@@ -1,10 +1,13 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
+import Lottie from "lottie-react"
+import {toast} from "sonner"
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import {Header} from "@/components/dashboard/header";
 import {Sidebar} from "@/components/dashboard/sidebar";
+import loadingAnimation from "../../../public/loading-animation.json"
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -30,6 +33,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
       if (profile?.role !== "admin") {
         router.replace("/login");
+        toast.error("Unauthorized Admin, You're not an admin")
         return;
       }
 
@@ -41,9 +45,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <p className="text-lg">Loading...</p>
+      <div className="flex items-center justify-center h-screen bg-black-900">
+        <Lottie animationData={loadingAnimation} loop={true} style={{ width: 300, height: 300 }} />
       </div>
+
     );
   }
 

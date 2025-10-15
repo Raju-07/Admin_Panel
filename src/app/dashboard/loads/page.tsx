@@ -239,7 +239,10 @@ export default function LoadsPage() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button size="sm" variant="destructive" className="tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg" onClick={() => handleDelete(load.id)}>
+                        <Button size="sm" 
+                        variant="destructive" 
+                        className="tranform transmission duration-300 hover:scale-120 hover:bg-grey-50 hover: shadow-lg" 
+                        onClick={() => handleDelete(load.id)}>
                           <Trash2 size={16} />
                         </Button>
                       </TooltipTrigger>
