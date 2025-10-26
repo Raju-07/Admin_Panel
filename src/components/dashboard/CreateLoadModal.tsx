@@ -82,9 +82,9 @@ export default function CreateLoadModal({ onClose, onCreated } : { onClose: ()=>
           <input className="p-2 border rounded" placeholder="Pallets" value={pallets } onChange={e=>setPallets(e.target.value?Number(e.target.value):"")} />
           <input className="p-2 border rounded" placeholder="Weights" value={weights } onChange={e=>setWeights(e.target.value?Number(e.target.value):"")} />
           <input className="p-2 border rounded" placeholder="Pickup location" value={pickupLocation} onChange={e=>setPickupLocation(e.target.value)} required/>
-          <input type="datetime-local" className="p-2 border rounded" value={pickupDatetime} onChange={e=>setPickupDatetime(e.target.value)} required/>
+          <input type="datetime-local" min={new Date().toISOString().slice(0,16)} className="p-2 border rounded" value={pickupDatetime} onChange={e=>setPickupDatetime(e.target.value)} required/>
           <input className="p-2 border rounded" placeholder="Delivery location" value={deliveryLocation} onChange={e=>setDeliveryLocation(e.target.value)} required/>
-          <input type="datetime-local" className="p-2 border rounded" value={deliveryDatetime} onChange={e=>setDeliveryDatetime(e.target.value)} required/>
+          <input type="datetime-local" min={pickupDatetime || new Date().toISOString().slice(0,16)} className="p-2 border rounded" value={deliveryDatetime} onChange={e=>setDeliveryDatetime(e.target.value)} required/>
           <select className="p-2 border rounded" value={driverId ?? ""} onChange={(e)=>setDriverId(e.target.value || null)}>
             <option value="">Assign driver</option>
             {drivers.map(d=> <option key={d.id} value={d.id}>{d.full_name ?? d.email}</option>)}

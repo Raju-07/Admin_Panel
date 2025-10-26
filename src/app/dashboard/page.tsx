@@ -97,7 +97,7 @@ export default function DashboardHome() {
           schema: "public",
           table: "loads"
         },
-        (payload) => {
+        () => {
           // Refresh both loads and metrics
           fetchLoads();
           fetchMetrics();

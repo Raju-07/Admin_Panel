@@ -36,8 +36,8 @@ export default function TrackingRequestsPage() {
           schema: "public",
           table: "tracking_stop_requests",
         },
-        (payload) => {
-          console.log("📡 New stop request:")
+        () => {
+          toast.info("New Stop Tracking Request is waiting...")
           fetchRequests();
         }
       )
